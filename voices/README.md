@@ -1,67 +1,67 @@
 # Voices
 
-Eine Voice = ein Subfolder mit allem was dazugehoert: Audio-Sample,
-Persona (LLM System-Prompt) und optional ICL-Transkript.
+A voice = one subfolder containing everything that belongs together:
+audio sample, persona (LLM system prompt), and optionally an ICL transcript.
 
-## Struktur
+## Layout
 
 ```
 voices/
 ├── Anna/
-│   ├── Anna.wav        # Voice-Reference (mono, 10-30 s, sauber)
-│   ├── persona.txt     # LLM System-Prompt (Charakter, Emotion-Tags, Regeln)
-│   └── Anna.txt        # optional: ICL-Transkript der WAV
+│   ├── Anna.wav        # voice reference (mono, 10–30 s, clean)
+│   ├── persona.txt     # LLM system prompt (character + emotion tags + rules)
+│   └── Anna.txt        # optional: ICL transcript of the WAV
 ├── Peter/
 │   ├── Peter.mp3
 │   └── persona.txt
 └── ...
 ```
 
-Voice-ID = Ordnername. In `config.yaml`: `tts.voice: Anna`.
+Voice ID = folder name. In `config.yaml`: `tts.voice: Anna`.
 
-## Anforderungen pro Sample
+## Sample requirements
 
-- Format: **WAV** (16-bit PCM bevorzugt) oder **MP3**
-- Dauer: **10-30 Sekunden**
-- Inhalt: nur **eine** Person spricht
-- Qualitaet: clean, keine Musik, keine Hintergrundgeraeusche, kein Hall
-- Sample-Rate: egal (Qwen3-TTS resampled selbst)
+- Format: **WAV** (16-bit PCM preferred) or **MP3**
+- Duration: **10–30 seconds**
+- Content: only **one** speaker
+- Quality: clean — no music, no background noise, no reverb
+- Sample rate: any (Qwen3-TTS resamples internally)
 
 ## persona.txt
 
-Plain-Text System-Prompt. Pflicht:
+Plain-text system prompt. Should include:
 
-- Charakter-Beschreibung (Wer bin ich? Wie spreche ich?)
-- Anrede-Regeln
-- Welt/Kontext (was kennt die Persona, was nicht?)
-- Tag-Block mit erlaubten `<style:NAME>`-Emotions-Tags
-- Standard-Regeln (max. 2-3 Saetze, keine Markdown, keine Sonderzeichen)
+- Character description (who am I? how do I speak?)
+- Address rules (Sir / Mylord / Captain / by name)
+- World/context (what does the persona know, what not?)
+- Tag block listing the allowed `<style:NAME>` emotion tags
+- Standard rules (max. 2–3 sentences, no markdown, no special chars)
 
-Beispiele in `voices/Data_Sample-Set/persona.txt` u.a.
+Examples in `voices/Data_Sample-Set/persona.txt` and the others.
 
-## Neue Voice mit clean-reference.py
+## Creating a new voice with clean-reference.py
 
-Aus dirty Source (Video, MP3, mit Musik / mehreren Sprechern) eine
-saubere Reference erzeugen — landet automatisch hier:
+Turn a dirty source (video, MP3, with music or multiple speakers) into
+a clean reference — automatically lands in the right place:
 
+```bash
+python scripts/clean-reference.py /path/to/source.mp4 --voice Anna
 ```
-python scripts/clean-reference.py /pfad/zu/quelle.mp4 --voice Anna
-```
 
-Erstellt `voices/Anna/Anna.wav`. Demucs-Workspace landet in
-`/tmp/voiceagent-clean/<stem>/`, NICHT in `voices/`.
+Creates `voices/Anna/Anna.wav`. The Demucs workspace lives in
+`/tmp/voiceagent-clean/<stem>/`, NOT inside `voices/`.
 
-Anschliessend `voices/Anna/persona.txt` von Hand anlegen (Vorlage:
-ein bestehender persona.txt von Data/Sam/Sora kopieren und anpassen).
+Afterwards create `voices/Anna/persona.txt` manually (use one of the
+existing personas as a template).
 
-## Tipps
+## Tips
 
-- Lieber **eine** saubere Aufnahme als mehrere durchschnittliche.
-- Aufnahme aus dem **gleichen Mikro** wie der spaetere Output bringt
-  konsistentere Ergebnisse.
-- Vorlesetext mit normaler Sprechmelodie funktioniert besser als
-  monotone Aufzaehlung.
+- One clean recording beats several mediocre ones.
+- A recording from the **same microphone** you'll use for output gives
+  more consistent results.
+- Reading text with normal sentence melody works better than monotone
+  enumeration.
 
-## Lizenzhinweis
+## License notice
 
-Stimmen anderer Personen nur mit deren Einverstaendnis klonen.
+Only clone voices of other people with their permission.

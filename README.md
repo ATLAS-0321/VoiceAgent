@@ -1,55 +1,55 @@
 # VoiceAgent
 
-Lokaler deutschsprachiger Voice-Chat mit Voice-Cloning, Emotion-Steuerung
-und per-Voice Audio-Effekten. Komplett offline auf AMD ROCm oder NVIDIA CUDA.
+Local realtime voice chat with voice cloning, emotion control and per-voice
+audio effects. Fully offline on AMD ROCm or NVIDIA CUDA.
 
 ```
-mic → VAD → STT (Qwen3-ASR) → Wake-Gate → LLM (Gemma 4) → TTS (Qwen3-TTS) → FX → speaker
+mic → VAD → STT (Qwen3-ASR) → wake-gate → LLM (Gemma 4) → TTS (Qwen3-TTS) → FX → speaker
 ```
 
-## Was es kann
+## What it does
 
-- **Wake-Word "data"** triggert Hörbereitschaft. Sprich "**hey data**", "**hey sam**"
-  oder "**hey sora**" um direkt zwischen Voices (= Stimme + Persona) zu wechseln.
-- **Drei mitgelieferte Voices**, jede mit eigener Stimme + Charakter + optional FX:
-  - **Data** (Star Trek TNG) — sachlich, formell, "Sir"
-  - **Samwell** (Game of Thrones) — schüchtern, gelehrt, "Mylord"
-  - **Sora/Zora** (Star Trek Discovery) — empathische Schiffs-KI mit
-    Sci-Fi-Audio-Effekten (Convolution-Reverb, Bitcrush, Resonanz-Peaks)
-- **Emotion-Tags** im LLM-Output (`<style:nervous>`, `<style:warm>`, ...)
-  steuern die TTS-Sprechweise — pro Antwort werden mehrere emotionale
-  Segmente in einem einzigen GPU-Pass gerendert.
-- **Conversation-Mode**: nach einer Antwort bleibt das System 10 s lang
-  aufmerksam, du kannst direkt weitersprechen ohne Wake-Word.
-- **Per-Voice Live-FX-Pipeline** via ffmpeg-Subprocess (z.B. Sora's
-  Sci-Fi-Sound — Convolution-Reverb, Bitcrush, Vibrato, Tremolo).
+- **Wake word "data"** activates listening. Say "**hey data**", "**hey sam**"
+  or "**hey sora**" to switch between voices (= persona + audio sample) on the fly.
+- **Three bundled voices**, each with its own sample, character and optional FX:
+  - **Data** (Star Trek TNG) — analytical, formal, addresses you as "Sir"
+  - **Samwell** (Game of Thrones) — shy, scholarly, says "Mylord"
+  - **Sora/Zora** (Star Trek Discovery) — empathetic ship AI with sci-fi
+    audio effects (convolution reverb, bitcrush, resonance peaks, vibrato)
+- **Emotion tags** in the LLM output (`<style:nervous>`, `<style:warm>`, …)
+  steer the TTS delivery — multiple emotional segments per response render
+  in a single GPU pass.
+- **Conversation mode**: after each reply the system stays attentive for
+  10 seconds, you can keep talking without re-saying the wake word.
+- **Per-voice live FX pipeline** via ffmpeg subprocess (e.g. Sora's sci-fi
+  sound — convolution reverb, bitcrush, vibrato, tremolo).
 
 ## Hardware
 
-- **GPU**: AMD (ROCm 7.x, gfx1100 getestet) ODER NVIDIA (CUDA 12.4+)
-- **OS**: Linux (Ubuntu/Debian/Arch — install.sh detektiert automatisch)
-- **Tools**: ffmpeg, Ollama mit `gemma4:e4b`
+- **GPU**: AMD (ROCm 7.x, gfx1100 tested) OR NVIDIA (CUDA 12.4+)
+- **OS**: Linux (Ubuntu/Debian/Arch — `install.sh` auto-detects)
+- **Tools**: ffmpeg, Ollama with `gemma4:e4b`
 
-VRAM-Auslastung im Loop: ~10.5 GB (TTS 3 GB + ASR 1.5 GB + Gemma 6 GB).
+VRAM at runtime: ~10.5 GB (TTS 3 GB + ASR 1.5 GB + Gemma 6 GB).
 
 ## Installation
 
 ```bash
-git clone <repo> ~/VoiceAgent
+git clone https://github.com/ATLAS-0321/VoiceAgent.git ~/VoiceAgent
 cd ~/VoiceAgent
 ./install.sh
 ```
 
-`install.sh` ist ein interaktives TUI (über `gum`):
-- Erkennt Distro (Debian/Arch) + GPU (AMD/NVIDIA)
-- Installiert System-Pakete, ROCm/NVIDIA-Driver (mit Bestätigung), Ollama,
-  PyTorch (passend zur GPU), Python-Deps
-- Bietet bei Frischinstallation **Storage-Auswahl**: `.venv` (~15 GB) und
-  `models/` (~9 GB) können auf eine andere Disk gelegt werden (Symlinks
-  im Repo zeigen dorthin) — listet automatisch alle Mounts mit ≥30 GB frei
-- Bei Re-Run mit lokal installierten Daten: bietet Verschieben auf andere Disk an
-- Bei "Nein" auf einzelne Steps: skip + sammelt Manual-Anleitungen, am
-  Ende ausgegeben
+`install.sh` is an interactive TUI (via `gum`):
+- Detects distro (Debian/Arch) and GPU (AMD/NVIDIA)
+- Installs system packages, ROCm/NVIDIA drivers (with confirmation),
+  Ollama, PyTorch (matching the GPU), Python deps
+- On a fresh install offers a **storage selection**: `.venv` (~15 GB) and
+  `models/` (~9 GB) can live on a separate disk (symlinks in the repo
+  point to it) — automatically lists all mounts with ≥30 GB free
+- On re-run with locally installed data: offers to move it to another disk
+- If you decline a step: it's skipped, manual instructions are collected
+  and printed at the end
 
 ## Start
 
@@ -57,28 +57,28 @@ cd ~/VoiceAgent
 ./scripts/start.sh
 ```
 
-Sprich "data" (warten auf "Sir?") und dann deine Frage. Oder direkt
-"hey data, was ist die Lichtgeschwindigkeit?" — Wake + Befehl in einem.
+Say "data" (wait for "Sir?") then your question. Or say it in one breath:
+"hey data, what is the speed of light?" — wake + command combined.
 
-Voice für eine Session überschreiben:
+Override voice for a single session:
 
 ```bash
 ./scripts/start.sh --voice Sora_Sample-Set
-./scripts/start.sh --list-voices         # alle verfügbaren Voices
-./scripts/start.sh --list-devices        # PortAudio-Devices
+./scripts/start.sh --list-voices         # list available voices
+./scripts/start.sh --list-devices        # list PortAudio devices
 ```
 
-Oder zur Laufzeit via Wake-Phrase:
+Or switch at runtime via wake phrase:
 
-| Sage… | Voice (= Stimme + Persona) | Erste Antwort |
+| Say… | Voice (= sample + persona) | First reply |
 |---|---|---|
 | `hey data` | Data_Sample-Set | "Ja, Sir." |
 | `hey sam` | Samwell_Sample-Set | "Ja, Mylord." |
 | `hey sora` | Sora_Sample-Set | "Ja, Captain." |
 
-## Konfiguration
+## Configuration
 
-Alles in `config.yaml` (Repo-Root):
+Everything in `config.yaml` (repo root):
 
 ```yaml
 stt:
@@ -87,7 +87,7 @@ llm:
   model: gemma4-data
   temperature: 0.6
 tts:
-  voice: Data_Sample-Set   # Subfolder unter voices/
+  voice: Data_Sample-Set   # subfolder under voices/
   voices_dir: voices
   volume: 0.5
 wake:
@@ -95,65 +95,72 @@ wake:
   attentive_timeout_s: 10
 ```
 
-Änderungen erfordern Neustart.
+Changes require a restart.
 
-## Voices: Struktur
+## Voices: layout
 
-Eine Voice = ein Subfolder unter `voices/` mit allem zusammengehörigen:
+A voice = one subfolder under `voices/` containing everything that
+belongs together:
 
 ```
 voices/
 ├── Data_Sample-Set/
-│   ├── Data_Sample-Set.wav    # Voice-Reference (mono, 10-30 s)
-│   ├── persona.txt            # LLM System-Prompt (Charakter + Tags + Regeln)
-│   └── Data_Sample-Set.txt    # optional: ICL-Transkript der WAV
+│   ├── Data_Sample-Set.wav    # voice reference (mono, 10–30 s)
+│   ├── persona.txt            # LLM system prompt (character + tags + rules)
+│   └── Data_Sample-Set.txt    # optional: ICL transcript of the WAV
 ├── Samwell_Sample-Set/
 │   └── …
 └── Sora_Sample-Set/
     └── …
 ```
 
-## Eigene Voice hinzufügen
+## Adding your own voice
 
-1. **Ordner anlegen** unter `voices/<Name>/`
-2. **Sample** als `voices/<Name>/<Name>.wav` (10–30 s, mono, sauber).
-   Wenn du nur dirty Source hast (Video, mit Musik / mehreren Sprechern):
+1. **Create folder** `voices/<Name>/`
+2. **Sample** as `voices/<Name>/<Name>.wav` (10–30 s, mono, clean).
+   For dirty source material (video, music in background, multiple
+   speakers):
    ```bash
-   python scripts/clean-reference.py /pfad/zu/quelle.mp4 --voice <Name>
+   python scripts/clean-reference.py /path/to/source.mp4 --voice <Name>
    ```
-   erzeugt automatisch `voices/<Name>/<Name>.wav`.
-3. **`voices/<Name>/persona.txt`** anlegen — Charakter, Anrede, Emotion-Tags,
-   Regeln. Vorlage: bestehende `persona.txt` aus `voices/Data_Sample-Set/` etc.
-4. (Optional) **Wake-Phrase** in `config.yaml` ergänzen:
+   automatically writes to `voices/<Name>/<Name>.wav`.
+3. **`voices/<Name>/persona.txt`** — character, address, emotion tags,
+   rules. Copy an existing one (e.g. `voices/Data_Sample-Set/persona.txt`)
+   as a template.
+4. (Optional) **Wake phrase** in `config.yaml`:
    ```yaml
    wake:
      phrases:
        - pattern: "hey,?\\s+name\\b"
-         reply: "Hallo."
+         reply: "Hello."
          voice: <Name>
    ```
-5. (Optional) **FX-Chain** für die Voice in `voiceagent/fx.py` hinzufügen
-   (siehe `Sora_Sample-Set` als Beispiel).
-6. Start: `./scripts/start.sh --voice <Name>`
+5. (Optional) **FX chain** for the voice in `voiceagent/fx.py`
+   (see `Sora_Sample-Set` for an example).
+6. Run: `./scripts/start.sh --voice <Name>`
 
-## Wie's funktioniert (Kurz)
+## How it works (short)
 
-- **STT**: Qwen3-ASR-1.7B auf ROCm/CUDA, mehrsprachig
-- **LLM**: Ollama mit Custom-Modelfile + `/api/generate?raw=true`, weil
-  Standard-`/api/chat` immer einen `<|think|>`-Token injiziert der gemma4:e4b
-  in Reasoning-Modus zwingt
-- **TTS**: Qwen3-TTS-Base mit Voice-Cloning. Bei Tag-Antworten wird
-  `model.generate(voice_clone_prompt + instruct_ids)` direkt aufgerufen —
-  der High-Level-Wrapper hat keinen `instruct`-Parameter, aber das
-  Low-Level-API kombiniert beides in einem Pass
-- **FX**: ffmpeg-Subprocess mit stdin/stdout-Pipe, eine Chain pro Voice,
-  läuft genau einmal am Ende auf dem konkatenierten Audio (sonst inkonsistente
-  Pegel zwischen Segmenten)
+- **STT**: Qwen3-ASR-1.7B on ROCm/CUDA, multilingual
+- **LLM**: Ollama with custom Modelfile + `/api/generate?raw=true`,
+  because the standard `/api/chat` always injects a `<|think|>` token
+  that forces gemma4:e4b into reasoning mode
+- **TTS**: Qwen3-TTS-Base with voice cloning. For tagged responses we
+  call `model.generate(voice_clone_prompt + instruct_ids)` directly —
+  the high-level wrapper has no `instruct` parameter, but the low-level
+  API combines both in a single pass
+- **FX**: ffmpeg subprocess via stdin/stdout pipe, one chain per voice,
+  runs exactly once on the concatenated audio at the end (otherwise the
+  level/reverb/modulation differs per segment)
 
-Mehr Architektur in `CLAUDE.md`.
+## License & contributing
 
-## Spätere Integration
+MIT licensed (see `LICENSE`). Contributions welcome via pull request —
+see `CONTRIBUTING.md` for the contributor agreement.
 
-VoiceAgent ist als Standalone-Loop gebaut, soll aber später als reiner
-**STT+TTS-Service** in deerflow integriert werden. Das LLM bleibt dann
-in deerflow's Chat-Session — Voice ist nur ein Input/Output-Modus.
+## Future integration
+
+VoiceAgent is built as a standalone loop, but is intended to later be
+integrated into deerflow as a pure **STT+TTS service**. The LLM will then
+live in deerflow's chat session — voice is just an additional input/output
+modality.
