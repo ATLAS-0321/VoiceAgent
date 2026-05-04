@@ -153,6 +153,13 @@ voices/
   runs exactly once on the concatenated audio at the end (otherwise the
   level/reverb/modulation differs per segment)
 
+## Built with AI assistance
+
+This project was developed in collaboration with an AI coding assistant
+(Anthropic Claude) — design, implementation, debugging and documentation.
+Architectural decisions, audio tuning and the final say belong to the
+maintainer; the AI handled most of the typing and a lot of the research.
+
 ## License & contributing
 
 MIT licensed (see `LICENSE`). Contributions welcome via pull request —
