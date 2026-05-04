@@ -155,10 +155,7 @@ voices/
 
 ## Built with AI assistance
 
-This project was developed in collaboration with an AI coding assistant
-(Anthropic Claude) — design, implementation, debugging and documentation.
-Architectural decisions, audio tuning and the final say belong to the
-maintainer; the AI handled most of the typing and a lot of the research.
+Developed with Anthropic Claude.
 
 ## License & contributing
 
