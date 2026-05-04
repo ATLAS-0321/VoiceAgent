@@ -15,10 +15,14 @@ models/*
 *.pt
 *.pth
 
-# Voices nicht committen (privat: Audio-Samples + Personas)
+# Voices: privat (Audio-Samples + Personas) ignorieren,
+# aber die drei mitgelieferten Sample-Sets gehoeren ins Repo
 voices/*
 !voices/.gitkeep
 !voices/README.md
+!voices/Data_Sample-Set/
+!voices/Samwell_Sample-Set/
+!voices/Sora_Sample-Set/
 
 # Docs (lokal, nicht committed)
 docs/
