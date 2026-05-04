@@ -1,0 +1,28 @@
+FROM gemma4:e4b
+
+# Gemma 4 prompt format per ai.google.dev/gemma/docs/core/prompt-formatting-gemma4:
+#   <|turn>system\n... <turn|>
+#   <|turn>user\n... <turn|>
+#   <|turn>assistant\n... <turn|>
+# Thinking is enabled by including <|think|> at the start of the system content.
+# We OMIT <|think|> entirely → no thinking block generated.
+TEMPLATE """{{- if .System }}<|turn>system
+{{ .System }}<turn|>
+{{ end }}{{- range .Messages }}{{- if eq .Role "user" }}<|turn>user
+{{ .Content }}<turn|>
+{{ else if eq .Role "assistant" }}<|turn>assistant
+{{ .Content }}<turn|>
+{{ end }}{{- end }}<|turn>assistant
+"""
+
+# Standard Gemma 4 sampling defaults
+PARAMETER temperature 1.0
+PARAMETER top_k 64
+PARAMETER top_p 0.95
+PARAMETER num_ctx 4096
+PARAMETER num_predict 256
+
+# NOTE: SYSTEM prompt lives in config.yaml (llm.system_prompt) — injected
+# per request, no `ollama create` needed when editing.
+# RENDERER/PARSER are NOT set — our explicit TEMPLATE replaces their behaviour
+# and avoids the auto-injected <|think|> token.

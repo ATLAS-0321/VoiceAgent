@@ -1,0 +1,41 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Modelle (zu gross fuer git) — Ordner bleibt, Inhalt ignoriert
+models/*
+!models/.gitkeep
+*.bin
+*.safetensors
+*.gguf
+*.ckpt
+*.pt
+*.pth
+
+# Voices nicht committen (privat: Audio-Samples + Personas)
+voices/*
+!voices/.gitkeep
+!voices/README.md
+
+# Docs (lokal, nicht committed)
+docs/
+CLAUDE.md
+
+# Auto-generierte Assets (regeneriert von voiceagent/fx.py beim Loop-Start)
+voiceagent/_assets/
+
+# Build/Cache
+.cache/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,83 @@
+# VoiceAgent Konfiguration
+# Aenderungen erfordern Neustart von ./scripts/start.sh
+
+stt:
+  # Qwen3-ASR-1.7B (multilingual, ROCm via PyTorch)
+  model: qwen3-asr
+  language: de               # de | en | fr | es | it | pt | ru | ja | ko | zh | auto
+  device: cuda               # cuda (= ROCm via PyTorch) | cpu
+  # Felder fuer Rueckwaertskompat:
+  backend: transformers
+  compute_type: float16
+
+llm:
+  model: gemma4-data
+  endpoint: http://localhost:11434
+  think: false
+  max_tokens: 120          # 80-120 ist guter Kompromiss zwischen Vollständigkeit und TTS-Zeit
+  temperature: 0.6
+  keep_alive: "15s"
+
+
+tts:
+  # Voice = Subfolder unter voices_dir. Enthaelt:
+  #   <voice>/<voice>.wav   - Audio-Reference fuer Voice-Clone
+  #   <voice>/persona.txt   - LLM System-Prompt (Charakter, Tags, Regeln)
+  #   <voice>/<voice>.txt   - optional: ICL-Transkript der WAV
+  voice: Data_Sample-Set
+  voices_dir: voices
+  language: de               # de, en, fr, es, it, pt, ru, ja, ko, zh
+  device: cuda
+  # Optional: Transkript der Reference. Leer = x_vector_only_mode.
+  # Gesetzt = ICL mode (bessere Klangtreue, aber uebernimmt auch
+  # Sprechpausen/Stotterer aus dem Reference-Audio).
+  ref_text: ""
+  volume: 0.5
+  # EQ aus
+  eq_bass_db: 0.0
+  eq_treble_db: 0.0
+  eq_lowpass_hz: 0           # 0 = lowpass aus
+
+wake:
+  enabled: true              # false = direkter Modus, jede Utterance geht ans LLM
+  word: data                 # Standard-Wake-Word (immer aktiv als Fallback)
+  attentive_timeout_s: 10    # Conversation-Mode: 10s Listening nach jeder Antwort
+  language: de               # de | en (steuert "Sir?"/Dismiss-Antworten)
+  # Optionale spezifische Wake-Phrasen mit eigener Antwort.
+  # pattern ist regex (case-insensitive). reply wird vor dem ATTENTIVE-Modus gesprochen.
+  phrases:
+    # Persona-Switch via "hey <name>": laedt Persona + passende Voice.
+    # MUSS vor den anderen Phrasen stehen, damit erste Match gewinnt.
+    - pattern: "hey,?\\s+(?:data|daten|datas|dater)\\b"
+      reply:   "Ja, Sir."
+      voice:   Data_Sample-Set
+    - pattern: "hey,?\\s+(?:sam|samwell|sammwell|samuel)\\b"
+      reply:   "Ja, Mylord."
+      voice:   Samwell_Sample-Set
+    - pattern: "hey,?\\s+(?:sora|sorra|zora)\\b"
+      reply:   "Ja, Captain."
+      voice:   Sora_Sample-Set
+    # ASR-Mishears fuer "Data" am Satzanfang: alter, daten, datas, dater
+    # "data bist du da?"
+    - pattern: "(?:data|alter|daten|datas|dater),?\\s+bist\\s+du\\s+da[?]?"
+      reply:   "Ja, Sir, ich bin hier."
+    # "captn an data" / "captain an data" / "Käpt'n an Data"
+    - pattern: "(?:cap[t']?(?:ain|n)?|k[aä]e?pt'?[ae]?n)[,]?\\s+an\\s+(?:data|alter|daten|datas|dater)"
+      reply:   "Hier Data, Captain. Wie kann ich behilflich sein?"
+    # "data" allein und "hey,? data" werden vom generic _WAKE_RX in wake.py
+    # behandelt → "Sir?" Antwort, danach ATTENTIVE.
+
+vad:
+  threshold: 0.5             # 0.0–1.0, hoeher = nur lauteres Audio triggert
+  min_silence_ms: 1200       # Pause bis Antwort startet — laenger = du kannst beim
+                             # Sprechen nachdenken ohne unterbrochen zu werden.
+  min_speech_ms: 250         # Mindest-Sprechdauer fuer Triggern
+
+audio:
+  input_device: null         # null = System-Default
+  output_device: null
+  sample_rate: 16000         # STT/VAD-Standard
+  output_sample_rate: 24000  # Qwen3-TTS native
+
+system:
+  log_level: INFO            # DEBUG | INFO | WARN | ERROR
