@@ -156,7 +156,7 @@ voices/
 ## Built with AI assistance
 
 Developed with Anthropic Claude. Every change is human-reviewed and
-tested by the maintainer before it ships — AI assists, the human signs off.
+tested by the maintainer before it ships. AI assists, the human signs off.
 
 ## License & contributing
 
